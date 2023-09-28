@@ -25,6 +25,8 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
         handlers::respond_with_200()
     } else if parsed_request.path.starts_with("/echo") {
         handlers::respond_with_path_content(parsed_request)
+    } else if parsed_request.path == "/user-agent" {
+        handlers::respond_with_user_agent(parsed_request)
     } else {
         handlers::respond_with_404()
     };

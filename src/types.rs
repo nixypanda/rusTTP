@@ -9,6 +9,17 @@ pub struct HttpRequest {
     pub method: String,
     pub path: String,
     pub version: String,
+    pub headers: Vec<HttpHeader>,
+}
+
+impl HttpRequest {
+    pub fn get_header(&self, name: &str) -> &str {
+        self.headers
+            .iter()
+            .find(|h| h.name == name)
+            .map(|h| h.value.as_str())
+            .unwrap_or("")
+    }
 }
 
 #[derive(Debug)]

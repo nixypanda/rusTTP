@@ -1,6 +1,7 @@
 use std::{
     io::{Read, Write},
     net::{TcpListener, TcpStream},
+    thread,
 };
 
 mod handlers;
@@ -41,7 +42,10 @@ fn main() -> anyhow::Result<()> {
 
     for stream in listener.incoming() {
         let stream = stream?;
-        handle_client(stream)?;
+        thread::spawn(|| -> anyhow::Result<()> {
+            handle_client(stream)?;
+            Ok(())
+        });
     }
 
     Ok(())

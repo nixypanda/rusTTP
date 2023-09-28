@@ -23,6 +23,8 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
 
     let response = if parsed_request.path == "/" {
         handlers::respond_with_200()
+    } else if parsed_request.path.starts_with("/echo") {
+        handlers::respond_with_path_content(parsed_request)
     } else {
         handlers::respond_with_404()
     };

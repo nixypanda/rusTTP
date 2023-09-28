@@ -70,6 +70,17 @@ impl ResponseBuilder {
         self
     }
 
+    pub fn add_header(mut self, header: &str) -> ResponseBuilder {
+        self.headers.push(header.to_owned());
+        self
+    }
+
+    pub fn content(mut self, content: &str) -> ResponseBuilder {
+        self.content = content.to_string();
+        self.add_header("Content-Type: text/plain")
+            .add_header(&format!("Content-Length: {}", content.len()))
+    }
+
     pub fn build(self) -> Response {
         Response {
             status_code: self.status_code,

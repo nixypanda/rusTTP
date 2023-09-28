@@ -10,6 +10,7 @@ pub struct HttpRequest {
     pub path: String,
     pub version: String,
     pub headers: Vec<HttpHeader>,
+    pub body: String,
 }
 
 impl HttpRequest {
@@ -41,6 +42,7 @@ impl std::fmt::Display for Response {
         let status_code = match self.status_code {
             StatusCode::Ok => "200 OK",
             StatusCode::NotFound => "404 Not Found",
+            StatusCode::Created => "201 Created",
         };
         let header_string = self.headers.join("\r\n");
 
@@ -59,6 +61,7 @@ impl std::fmt::Display for Response {
 pub(crate) enum StatusCode {
     Ok,
     NotFound,
+    Created,
 }
 
 pub(crate) struct ResponseBuilder {

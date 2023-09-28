@@ -36,6 +36,8 @@ fn handle_client(mut stream: TcpStream, handler: Arc<Handler>) -> anyhow::Result
     } else if parsed_request.path.starts_with("/files") {
         if parsed_request.method == "GET" {
             handler.respond_with_file(parsed_request)
+        } else if parsed_request.method == "POST" {
+            handler.store_file(parsed_request)
         } else {
             handler.respond_with_404()
         }

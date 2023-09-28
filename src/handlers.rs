@@ -56,4 +56,17 @@ impl Handler {
             .file_content(&file_contents)
             .build())
     }
+
+    pub(crate) fn store_file(
+        &self,
+        parsed_request: HttpRequest,
+    ) -> Result<Response, anyhow::Error> {
+        let filename = parsed_request.path.strip_prefix("/files/").unwrap();
+        let file_path = PathBuf::from(self.env_dir.clone()).join(filename);
+        let _ = file::store_file(file_path, &parsed_request.body);
+
+        Ok(ResponseBuilder::new()
+            .status_code(StatusCode::Created)
+            .build())
+    }
 }

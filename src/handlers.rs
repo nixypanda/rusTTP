@@ -1,8 +1,19 @@
-use crate::types::{HttpRequest, Response, ResponseBuilder, StatusCode};
+use std::path::PathBuf;
 
-pub(crate) struct Handler {}
+use crate::{
+    file,
+    types::{HttpRequest, Response, ResponseBuilder, StatusCode},
+};
+
+pub(crate) struct Handler {
+    env_dir: String,
+}
 
 impl Handler {
+    pub(crate) fn new(env_dir: String) -> Self {
+        Self { env_dir }
+    }
+
     pub(crate) fn respond_with_200(&self) -> anyhow::Result<Response> {
         Ok(ResponseBuilder::new().build())
     }
@@ -29,6 +40,20 @@ impl Handler {
         Ok(ResponseBuilder::new()
             .status_code(StatusCode::Ok)
             .content(content)
+            .build())
+    }
+
+    pub(crate) fn respond_with_file(
+        &self,
+        parsed_request: HttpRequest,
+    ) -> Result<Response, anyhow::Error> {
+        let filename = parsed_request.path.strip_prefix("/files/").unwrap();
+        let file_path = PathBuf::from(self.env_dir.clone()).join(filename);
+        let file_contents = file::get_file_contents(file_path)?;
+
+        Ok(ResponseBuilder::new()
+            .status_code(StatusCode::Ok)
+            .file_content(&file_contents)
             .build())
     }
 }

@@ -92,6 +92,12 @@ impl ResponseBuilder {
             .add_header(&format!("Content-Length: {}", content.len()))
     }
 
+    pub fn file_content(mut self, content: &str) -> ResponseBuilder {
+        self.content = content.to_string();
+        self.add_header("Content-Type: application/octet-stream")
+            .add_header(&format!("Content-Length: {}", content.len()))
+    }
+
     pub fn build(self) -> Response {
         Response {
             status_code: self.status_code,

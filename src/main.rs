@@ -4,13 +4,15 @@ use std::{
     thread,
 };
 
+use handlers::Handler;
+
 mod handlers;
 mod parse;
 mod types;
 
 const BUFFER_SIZE: usize = 4096;
 
-fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
+fn handle_client(mut stream: TcpStream, handler: &Handler) -> anyhow::Result<()> {
     let mut buffer = [0; BUFFER_SIZE];
     let n = stream.peek(&mut buffer)?;
 
@@ -23,13 +25,13 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
     stream.read(&mut buffer)?;
 
     let response = if parsed_request.path == "/" {
-        handlers::respond_with_200()
+        handler.respond_with_200()
     } else if parsed_request.path.starts_with("/echo") {
-        handlers::respond_with_path_content(parsed_request)
+        handler.respond_with_path_content(parsed_request)
     } else if parsed_request.path == "/user-agent" {
-        handlers::respond_with_user_agent(parsed_request)
+        handler.respond_with_user_agent(parsed_request)
     } else {
-        handlers::respond_with_404()
+        handler.respond_with_404()
     };
 
     stream.write_all(&response?.as_bytes())?;
@@ -39,11 +41,12 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
 
 fn main() -> anyhow::Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221").unwrap();
+    let handler = Handler {};
 
     for stream in listener.incoming() {
         let stream = stream?;
         thread::spawn(|| -> anyhow::Result<()> {
-            handle_client(stream)?;
+            handle_client(stream, &handler)?;
             Ok(())
         });
     }

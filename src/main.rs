@@ -4,6 +4,7 @@ use std::{
 };
 
 mod handlers;
+mod parse;
 mod types;
 
 const BUFFER_SIZE: usize = 4096;
@@ -15,12 +16,18 @@ fn handle_client(mut stream: TcpStream) -> anyhow::Result<()> {
     if n == 0 {
         return Ok(());
     }
+    let raw_request = String::from_utf8_lossy(&buffer[..n]);
+    let parsed_request = parse::parse_request(&raw_request)?;
 
     stream.read(&mut buffer)?;
 
-    let response = handlers::respond_with_200()?;
+    let response = if parsed_request.path == "/" {
+        handlers::respond_with_200()
+    } else {
+        handlers::respond_with_404()
+    };
 
-    stream.write_all(&response.as_bytes())?;
+    stream.write_all(&response?.as_bytes())?;
 
     Ok(())
 }

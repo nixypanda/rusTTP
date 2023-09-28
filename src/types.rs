@@ -4,6 +4,13 @@ pub struct HttpHeader {
     pub value: String,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct HttpRequest {
+    pub method: String,
+    pub path: String,
+    pub version: String,
+}
+
 #[derive(Debug)]
 pub(crate) struct Response {
     status_code: StatusCode,
@@ -22,6 +29,7 @@ impl std::fmt::Display for Response {
         let protocol = "HTTP/1.1";
         let status_code = match self.status_code {
             StatusCode::Ok => "200 OK",
+            StatusCode::NotFound => "404 Not Found",
         };
         let header_string = self.headers.join("\r\n");
 
@@ -39,6 +47,7 @@ impl std::fmt::Display for Response {
 #[derive(Debug)]
 pub(crate) enum StatusCode {
     Ok,
+    NotFound,
 }
 
 pub(crate) struct ResponseBuilder {
@@ -54,6 +63,11 @@ impl ResponseBuilder {
             headers: vec![],
             content: "".to_string(),
         }
+    }
+
+    pub fn status_code(mut self, status_code: StatusCode) -> ResponseBuilder {
+        self.status_code = status_code;
+        self
     }
 
     pub fn build(self) -> Response {
